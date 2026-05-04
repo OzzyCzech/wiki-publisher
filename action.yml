@@ -1,0 +1,43 @@
+name: Wiki Publisher
+description: Build and publish OzzyCzech/wiki content as Starlight site to GitHub Pages
+runs:
+  using: composite
+  steps:
+    - name: Setup Node
+      uses: actions/setup-node@v6
+      with:
+        node-version: 24
+        cache: npm
+        cache-dependency-path: ${{ github.action_path }}/package-lock.json
+
+    - name: Sync wiki content into template
+      shell: bash
+      run: |
+        rm -rf "$GITHUB_ACTION_PATH/src/content/docs"
+        mkdir -p "$GITHUB_ACTION_PATH/src/content/docs"
+        rsync -a \
+          --exclude='.git' \
+          --exclude='.github' \
+          --exclude='.claude' \
+          --exclude='.gitignore' \
+          --exclude='.DS_Store' \
+          --exclude='CLAUDE.md' \
+          --exclude='readme.md' \
+          --exclude='README.md' \
+          --exclude='LICENSE' \
+          "${{ github.workspace }}/" "$GITHUB_ACTION_PATH/src/content/docs/"
+
+    - name: Install dependencies
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      run: npm ci
+
+    - name: Build site
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      run: npm run build
+
+    - name: Upload Pages artifact
+      uses: actions/upload-pages-artifact@v4
+      with:
+        path: ${{ github.action_path }}/dist
