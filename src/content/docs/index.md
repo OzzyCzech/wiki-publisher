@@ -9,13 +9,25 @@ tableOfContents: false
 This is my personal knowledge base — a public collection of notes I've gathered over time.
 It works as an [LLM Wiki](/ai/guides/llm-wiki/): I curate the sources and direction,
 an LLM agent helps organize, summarize, and keep things consistent.
-It's [open source](https://github.com/OzzyCzech/wiki) and maintained by [Roman Ožana](https://ozana.cz).
+Maintained by [Roman Ožana](https://ozana.cz).
 
 ### 📝 What's it about?
 
-Notes are mostly about web development, AI, and other **things I'm interested in**.
-Things I've **googled a lot** and want to remember, as well as things
-I find interesting and worth sharing.
+Notes cover topics I keep coming back to — mostly **web development**
+(JavaScript, CSS, Tailwind, Vue, WordPress, databases, Docker),
+**AI** (agents, Claude Code, tools, guides), the **command line**
+(git, networking, scripting, media tooling), plus a long tail of
+**hardware**, **macOS**, **security**, **photography**, and
+random things I've **googled a lot** and want to remember.
+
+### 🔧 How it's built
+
+Two repositories work together:
+
+- [**OzzyCzech/wiki**](https://github.com/OzzyCzech/wiki) — the markdown content of this site.
+- [**OzzyCzech/wiki-publisher**](https://github.com/OzzyCzech/wiki-publisher) — a GitHub Action
+  with a bundled [Astro Starlight](https://starlight.astro.build/) template that builds
+  and deploys the site to GitHub Pages on every push.
 
 ### 🚀 Can I contribute?
 
