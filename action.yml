@@ -11,8 +11,8 @@ runs:
     - name: Sync wiki content into template
       shell: bash
       run: |
-        rm -rf "$GITHUB_ACTION_PATH/src/content/docs"
-        mkdir -p "$GITHUB_ACTION_PATH/src/content/docs"
+        # Overlay wiki content on top of bundled site pages (index.md, 404.md, etc.)
+        # Wiki files win on collisions; bundled pages survive when wiki has no equivalent.
         rsync -a \
           --exclude='.git' \
           --exclude='.github' \
