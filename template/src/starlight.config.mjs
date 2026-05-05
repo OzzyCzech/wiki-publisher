@@ -14,7 +14,7 @@ export default {
 	//     brand: 'My Site',
 	//     domain: 'example.com',
 	//     tagline: 'Optional uppercase line under brand',
-	//     accent: ['#4f46e5', '#312e81'],
+	//     accent: ['#4f46e5', '#7c3aed'],
 	//     logo: './public/logo.svg',  // optional, embedded as data URI
 	//   }
 	// Per-page override: set `ogImage:` (absolute URL or site-relative path) in frontmatter.

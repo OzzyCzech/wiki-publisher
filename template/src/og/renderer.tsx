@@ -19,12 +19,23 @@ export interface OgProps {
 	config: OgConfig;
 }
 
+function clamp(text: string, max: number): string {
+	return text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text;
+}
+
+function titleSize(text: string): number {
+	if (text.length > 80) return 56;
+	if (text.length > 50) return 68;
+	if (text.length > 28) return 84;
+	return 96;
+}
+
 export function OgImage({ title, description, config }: OgProps) {
-	const accent = config.accent ?? ['#4f46e5', '#312e81'];
-	const text = config.textColor ?? '#18181b';
-	const muted = config.mutedColor ?? '#52525b';
-	const bg = config.bgGradient ?? 'linear-gradient(148deg, #f4f4f5 0%, #eef2ff 55%, #e0e7ff 100%)';
-	const fontSize = title.length > 60 ? 44 : 54;
+	const accent = config.accent ?? ['#4f46e5', '#7c3aed'];
+	const text = config.textColor ?? '#0f172a';
+	const muted = config.mutedColor ?? '#475569';
+	const bg = config.bgGradient ?? 'linear-gradient(135deg, #fafafa 0%, #f1f5f9 100%)';
+	const size = titleSize(title);
 
 	return (
 		<div
@@ -34,35 +45,71 @@ export function OgImage({ title, description, config }: OgProps) {
 				width: '100%',
 				height: '100%',
 				background: bg,
-				padding: '56px 72px 56px 78px',
+				padding: '64px 80px',
 				fontFamily: 'Inter',
 				position: 'relative',
 			}}
 		>
+			{/* Soft accent bloom in the top-right corner */}
+			<div
+				style={{
+					position: 'absolute',
+					top: -240,
+					right: -240,
+					width: 640,
+					height: 640,
+					borderRadius: 9999,
+					background: `radial-gradient(circle, ${accent[0]}55 0%, ${accent[0]}00 70%)`,
+				}}
+			/>
+			{/* Mirrored bloom in bottom-left for balance */}
+			<div
+				style={{
+					position: 'absolute',
+					bottom: -300,
+					left: -200,
+					width: 560,
+					height: 560,
+					borderRadius: 9999,
+					background: `radial-gradient(circle, ${accent[1]}33 0%, ${accent[1]}00 70%)`,
+				}}
+			/>
+
+			{/* Left accent bar with tapered gradient */}
 			<div
 				style={{
 					position: 'absolute',
 					top: 0,
 					left: 0,
 					bottom: 0,
-					width: 6,
+					width: 8,
 					background: `linear-gradient(180deg, ${accent[0]} 0%, ${accent[1]} 100%)`,
 				}}
 			/>
 
+			{/* Header */}
 			<div
 				style={{
 					display: 'flex',
 					flexDirection: 'row',
-					alignItems: 'flex-start',
+					alignItems: 'center',
 					justifyContent: 'space-between',
+					gap: 24,
 				}}
 			>
-				<div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+				<div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
 					{config.logoSrc ? (
-						<img src={config.logoSrc} height={32} alt={config.brand ?? 'Logo'} />
+						<img src={config.logoSrc} height={40} alt={config.brand ?? 'Logo'} />
 					) : config.brand ? (
-						<p style={{ fontSize: 28, fontWeight: 700, color: text, margin: 0, letterSpacing: '-0.02em' }}>
+						<p
+							style={{
+								fontSize: 30,
+								fontWeight: 800,
+								color: text,
+								margin: 0,
+								letterSpacing: '-0.025em',
+							}}
+						>
 							{config.brand}
 						</p>
 					) : null}
@@ -73,7 +120,7 @@ export function OgImage({ title, description, config }: OgProps) {
 								color: accent[0],
 								margin: 0,
 								fontWeight: 700,
-								letterSpacing: '0.05em',
+								letterSpacing: '0.12em',
 								textTransform: 'uppercase',
 							}}
 						>
@@ -81,19 +128,39 @@ export function OgImage({ title, description, config }: OgProps) {
 						</p>
 					)}
 				</div>
-				{config.domain && <p style={{ fontSize: 15, color: muted, margin: 0 }}>{config.domain}</p>}
+				{config.domain && (
+					<div
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: 10,
+						}}
+					>
+						<div
+							style={{
+								width: 8,
+								height: 8,
+								borderRadius: 9999,
+								background: `linear-gradient(135deg, ${accent[0]} 0%, ${accent[1]} 100%)`,
+							}}
+						/>
+						<p style={{ fontSize: 18, color: muted, margin: 0, fontWeight: 500 }}>{config.domain}</p>
+					</div>
+				)}
 			</div>
 
 			<div style={{ flex: 1 }} />
 
+			{/* Title */}
 			<p
 				style={{
-					fontSize,
-					fontWeight: 700,
+					fontSize: size,
+					fontWeight: 800,
 					color: text,
-					lineHeight: 1.16,
-					margin: '0 0 20px',
-					letterSpacing: '-0.025em',
+					lineHeight: 1.08,
+					margin: '0 0 24px',
+					letterSpacing: '-0.035em',
+					maxWidth: '95%',
 				}}
 			>
 				{title}
@@ -102,15 +169,29 @@ export function OgImage({ title, description, config }: OgProps) {
 			{description && (
 				<p
 					style={{
-						fontSize: 21,
+						fontSize: 26,
 						color: muted,
 						margin: 0,
-						lineHeight: 1.5,
+						lineHeight: 1.4,
+						maxWidth: '88%',
+						fontWeight: 400,
 					}}
 				>
-					{description.length > 160 ? `${description.slice(0, 157)}...` : description}
+					{clamp(description, 180)}
 				</p>
 			)}
+
+			{/* Bottom accent line */}
+			<div
+				style={{
+					position: 'absolute',
+					left: 80,
+					right: 80,
+					bottom: 36,
+					height: 2,
+					background: `linear-gradient(90deg, ${accent[0]}00 0%, ${accent[0]}66 50%, ${accent[1]}00 100%)`,
+				}}
+			/>
 		</div>
 	);
 }
