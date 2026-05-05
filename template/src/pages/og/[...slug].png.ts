@@ -24,7 +24,7 @@ export async function getStaticPaths() {
 	if (!ogEnabled) return [];
 	const docs = await getCollection('docs');
 	return docs
-		.filter((entry) => !entry.data.ogImage)
+		.filter((entry) => !(entry.data as { ogImage?: string }).ogImage)
 		.map((entry) => {
 			const slug = entry.id === 'index' ? 'index' : entry.id;
 			return {

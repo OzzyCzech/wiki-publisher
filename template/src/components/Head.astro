@@ -2,7 +2,7 @@
 import Default from '@astrojs/starlight/components/Head.astro';
 
 const entry = Astro.locals.starlightRoute?.entry;
-const customOg = entry?.data?.ogImage as string | undefined;
+const customOg = (entry?.data as { ogImage?: string } | undefined)?.ogImage;
 
 const slug = (entry?.id ?? '').replace(/\.(md|mdx)$/i, '') || 'index';
 const generatedOg = `/og/${slug}.png`;
