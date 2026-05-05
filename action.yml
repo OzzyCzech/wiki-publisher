@@ -36,10 +36,10 @@ runs:
         #    - public/   -> $WORK/public/
         #    - starlight.config.mjs -> $WORK/src/starlight.config.mjs
         #    - astro.config.mjs     -> $WORK/astro.config.mjs (full override; rare)
-        [ -d "$CONTENT_DIR/src"    ] && rsync -a "$CONTENT_DIR/src/"    "$WORK/src/"    || true
-        [ -d "$CONTENT_DIR/public" ] && rsync -a "$CONTENT_DIR/public/" "$WORK/public/" || true
-        [ -f "$CONTENT_DIR/starlight.config.mjs" ] && cp "$CONTENT_DIR/starlight.config.mjs" "$WORK/src/starlight.config.mjs" || true
-        [ -f "$CONTENT_DIR/astro.config.mjs"     ] && cp "$CONTENT_DIR/astro.config.mjs"     "$WORK/astro.config.mjs"         || true
+        if [ -d "$CONTENT_DIR/src" ];    then rsync -a "$CONTENT_DIR/src/"    "$WORK/src/";    fi
+        if [ -d "$CONTENT_DIR/public" ]; then rsync -a "$CONTENT_DIR/public/" "$WORK/public/"; fi
+        if [ -f "$CONTENT_DIR/starlight.config.mjs" ]; then cp "$CONTENT_DIR/starlight.config.mjs" "$WORK/src/starlight.config.mjs"; fi
+        if [ -f "$CONTENT_DIR/astro.config.mjs" ];     then cp "$CONTENT_DIR/astro.config.mjs"     "$WORK/astro.config.mjs";         fi
 
         if [ ! -f "$WORK/src/starlight.config.mjs" ]; then
           echo "::error::starlight.config.mjs not found at $CONTENT_DIR/starlight.config.mjs"
