@@ -8,17 +8,18 @@ import { OgImage } from '../../og/renderer.tsx';
 import { ogEnabled, ogConfig } from '../../og/config.ts';
 
 function loadFont(filename: string): Buffer {
-	const candidates = [
-		path.join(process.cwd(), 'node_modules/@fontsource/inter/files', filename),
-	];
-	for (const file of candidates) {
-		if (fs.existsSync(file)) return fs.readFileSync(file);
+	const file = path.join(process.cwd(), 'node_modules/@fontsource/inter/files', filename);
+	if (!fs.existsSync(file)) {
+		throw new Error(`[og] cannot find font file ${filename}; is @fontsource/inter installed?`);
 	}
-	throw new Error(`[og] cannot find font file ${filename}; is @fontsource/inter installed?`);
+	return fs.readFileSync(file);
 }
 
+// Latin + Latin Extended (covers Czech, Polish, …) so non-ASCII titles render correctly.
 const fontRegular = ogEnabled ? loadFont('inter-latin-400-normal.woff') : null;
+const fontRegularExt = ogEnabled ? loadFont('inter-latin-ext-400-normal.woff') : null;
 const fontBold = ogEnabled ? loadFont('inter-latin-700-normal.woff') : null;
+const fontBoldExt = ogEnabled ? loadFont('inter-latin-ext-700-normal.woff') : null;
 
 export async function getStaticPaths() {
 	if (!ogEnabled) return [];
@@ -43,7 +44,7 @@ export const GET: APIRoute = async ({ props }) => {
 		description?: string;
 	};
 
-	if (!fontRegular || !fontBold) {
+	if (!fontRegular || !fontBold || !fontRegularExt || !fontBoldExt) {
 		return new Response('OG generation disabled', { status: 404 });
 	}
 
@@ -52,7 +53,9 @@ export const GET: APIRoute = async ({ props }) => {
 		height: 630,
 		fonts: [
 			{ name: 'Inter', data: fontRegular, weight: 400, style: 'normal' },
+			{ name: 'Inter', data: fontRegularExt, weight: 400, style: 'normal' },
 			{ name: 'Inter', data: fontBold, weight: 700, style: 'normal' },
+			{ name: 'Inter', data: fontBoldExt, weight: 700, style: 'normal' },
 		],
 	});
 
