@@ -87,10 +87,29 @@ jobs:
 
 ## Inputs
 
-| Name           | Default | Description |
-|----------------|---------|-------------|
-| `content-path` | `.`     | Where in the caller repo content lives |
-| `node-version` | `25`    | Node version for `setup-node` |
+| Name                | Default              | Description |
+|---------------------|----------------------|-------------|
+| `content-path`      | `.`                  | Where in the caller repo content lives |
+| `node-version`      | `25`                 | Node version for `setup-node` |
+| `base`              | _(none)_             | Astro `base` path (e.g. `/my-repo` for project pages) |
+| `starlight-version` | _(pinned in template)_ | Override `@astrojs/starlight` version (e.g. `0.40.1`) |
+| `astro-version`     | _(pinned in template)_ | Override `astro` version (e.g. `^6.3.0`) |
+
+### Version overrides
+
+The action ships locked dependency versions in `template/package-lock.json` for reproducible builds. Use `starlight-version` / `astro-version` only when you need to unblock a build or test a newer release without forking the action:
+
+```yaml
+- uses: OzzyCzech/starlight@main
+  with:
+    starlight-version: '0.40.1'
+```
+
+When either override is set the action runs `npm install` (lockfile would disagree); otherwise it runs `npm ci` for determinism.
+
+### Default title
+
+If the caller has no `starlight.config.mjs`, the site title defaults to the GitHub repo name (`OzzyCzech/foo` → `foo`) instead of a generic `Site`.
 
 ## Local preview
 
