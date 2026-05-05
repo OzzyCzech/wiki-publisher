@@ -89,9 +89,12 @@ runs:
           --exclude='public' \
           "$CONTENT_DIR/" "$WORK/src/content/docs/"
 
-        # 4. Homepage fallback order: caller's index.{md,mdx} (already rsynced)
-        #    > caller's README.{md,mdx} (case-insensitive) > template's default index.md.
-        if [ ! -f "$CONTENT_DIR/index.md" ] && [ ! -f "$CONTENT_DIR/index.mdx" ]; then
+        # 4. Homepage fallback order: caller's index.{md,mdx} at root or in
+        #    src/content/docs/ (already in $WORK) > caller's README.{md,mdx}
+        #    (case-insensitive) > template's default index.md.
+        if [ ! -f "$CONTENT_DIR/index.md" ] && [ ! -f "$CONTENT_DIR/index.mdx" ] \
+           && [ ! -f "$CONTENT_DIR/src/content/docs/index.md" ] \
+           && [ ! -f "$CONTENT_DIR/src/content/docs/index.mdx" ]; then
           README=""
           for f in "$CONTENT_DIR"/[Rr][Ee][Aa][Dd][Mm][Ee].md "$CONTENT_DIR"/[Rr][Ee][Aa][Dd][Mm][Ee].mdx; do
             if [ -f "$f" ]; then README="$f"; break; fi
