@@ -1,5 +1,9 @@
 name: Starlight
 description: Build a Starlight site from a markdown content repo and upload it as a GitHub Pages artifact
+author: OzzyCzech
+branding:
+  icon: book-open
+  color: purple
 inputs:
   content-path:
     description: Path inside the caller repo where content lives
