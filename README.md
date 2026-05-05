@@ -93,9 +93,12 @@ jobs:
 
 ## Local preview
 
+The `template/` directory is a complete Astro project with a default `starlight.config.mjs` and a placeholder `index.md`, so it runs out of the box:
+
 ```bash
 cd template
 npm install
-# drop a starlight.config.mjs into ./src/, content into ./src/content/docs/
 npm run dev
 ```
+
+To preview a real caller's content locally, drop content into `template/src/content/docs/` and (optionally) replace `template/src/starlight.config.mjs` — both files are overwritten by the action at build time, so changes here are safe and won't leak into deployments.
