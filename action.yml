@@ -58,8 +58,8 @@ runs:
           --exclude='node_modules' \
           --exclude='dist' \
           --exclude='CLAUDE.md' \
-          --exclude='readme.md' \
-          --exclude='README.md' \
+          --exclude='[Rr][Ee][Aa][Dd][Mm][Ee].md' \
+          --exclude='[Rr][Ee][Aa][Dd][Mm][Ee].mdx' \
           --exclude='LICENSE' \
           --exclude='package.json' \
           --exclude='package-lock.json' \
@@ -70,6 +70,34 @@ runs:
           --exclude='src' \
           --exclude='public' \
           "$CONTENT_DIR/" "$WORK/src/content/docs/"
+
+        # 4. If no homepage, fall back to caller's README (any case)
+        if [ ! -f "$WORK/src/content/docs/index.md" ] && [ ! -f "$WORK/src/content/docs/index.mdx" ]; then
+          README=""
+          for f in "$CONTENT_DIR"/[Rr][Ee][Aa][Dd][Mm][Ee].md "$CONTENT_DIR"/[Rr][Ee][Aa][Dd][Mm][Ee].mdx; do
+            if [ -f "$f" ]; then README="$f"; break; fi
+          done
+          if [ -n "$README" ]; then
+            ext="${README##*.}"
+            DEST="$WORK/src/content/docs/index.${ext}"
+            if head -1 "$README" | grep -q '^---$'; then
+              cp "$README" "$DEST"
+            else
+              TITLE=$(grep -m1 '^# ' "$README" | sed 's/^# *//' || true)
+              TITLE=${TITLE:-Home}
+              BODY=$(grep -v -m1 '^# ' "$README" 2>/dev/null || cat "$README")
+              {
+                echo '---'
+                printf 'title: %s\n' "$(printf '%s' "$TITLE" | sed 's/"/\\"/g; s/^/"/; s/$/"/')"
+                echo '---'
+                echo ''
+                # strip the first H1 since Starlight renders the frontmatter title as h1
+                awk 'BEGIN{stripped=0} /^# / && !stripped { stripped=1; next } { print }' "$README"
+              } > "$DEST"
+            fi
+            echo "::notice::No index.md found; using $(basename "$README") as homepage"
+          fi
+        fi
 
         echo "STARLIGHT_WORK=$WORK" >> "$GITHUB_ENV"
 
