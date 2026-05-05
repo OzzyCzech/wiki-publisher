@@ -7,19 +7,14 @@ import satori from 'satori';
 import { OgImage } from '../../og/renderer.tsx';
 import { ogEnabled, ogConfig } from '../../og/config.ts';
 
-function loadFont(filename: string): Buffer {
-	const file = path.join(process.cwd(), 'node_modules/@fontsource/inter/files', filename);
-	if (!fs.existsSync(file)) {
-		throw new Error(`[og] cannot find font file ${filename}; is @fontsource/inter installed?`);
-	}
-	return fs.readFileSync(file);
-}
-
-// Latin + Latin Extended (covers Czech, Polish, …) so non-ASCII titles render correctly.
-const fontRegular = ogEnabled ? loadFont('inter-latin-400-normal.woff') : null;
-const fontRegularExt = ogEnabled ? loadFont('inter-latin-ext-400-normal.woff') : null;
-const fontBold = ogEnabled ? loadFont('inter-latin-700-normal.woff') : null;
-const fontBoldExt = ogEnabled ? loadFont('inter-latin-ext-700-normal.woff') : null;
+// Bundled Inter ttfs cover the full Inter glyph set (basic Latin + latin-ext +
+// the extras Czech/Polish/Vietnamese/… need). Satori does NOT do glyph fallback
+// across multiple fonts of the same name+weight+style, so a single combined
+// font file is required — @fontsource/inter ships only narrow subsets and is
+// unsuitable here.
+const fontDir = path.join(process.cwd(), 'src/og/fonts');
+const fontRegular = ogEnabled ? fs.readFileSync(path.join(fontDir, 'Inter-Regular.ttf')) : null;
+const fontBold = ogEnabled ? fs.readFileSync(path.join(fontDir, 'Inter-Bold.ttf')) : null;
 
 export async function getStaticPaths() {
 	if (!ogEnabled) return [];
@@ -44,7 +39,7 @@ export const GET: APIRoute = async ({ props }) => {
 		description?: string;
 	};
 
-	if (!fontRegular || !fontBold || !fontRegularExt || !fontBoldExt) {
+	if (!fontRegular || !fontBold) {
 		return new Response('OG generation disabled', { status: 404 });
 	}
 
@@ -53,9 +48,7 @@ export const GET: APIRoute = async ({ props }) => {
 		height: 630,
 		fonts: [
 			{ name: 'Inter', data: fontRegular, weight: 400, style: 'normal' },
-			{ name: 'Inter', data: fontRegularExt, weight: 400, style: 'normal' },
 			{ name: 'Inter', data: fontBold, weight: 700, style: 'normal' },
-			{ name: 'Inter', data: fontBoldExt, weight: 700, style: 'normal' },
 		],
 	});
 
