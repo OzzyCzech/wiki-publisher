@@ -1,41 +1,93 @@
-name: Wiki Publisher
-description: Build and publish OzzyCzech/wiki content as Starlight site to GitHub Pages
+name: Starlight
+description: Build a Starlight site from a markdown content repo and upload it as a GitHub Pages artifact
+inputs:
+  content-path:
+    description: Path inside the caller repo where content lives
+    required: false
+    default: '.'
+  node-version:
+    description: Node.js version to use for the build
+    required: false
+    default: '24'
 runs:
   using: composite
   steps:
     - name: Setup Node
       uses: actions/setup-node@v6
       with:
-        node-version: 24
+        node-version: ${{ inputs.node-version }}
 
-    - name: Sync wiki content into template
+    - name: Assemble build directory
       shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+        CONTENT_DIR: ${{ github.workspace }}/${{ inputs.content-path }}
       run: |
-        # Overlay wiki content on top of bundled site pages (index.md, 404.md, etc.)
-        # Wiki files win on collisions; bundled pages survive when wiki has no equivalent.
+        set -euo pipefail
+        WORK="$RUNNER_TEMP/starlight-build"
+        rm -rf "$WORK"
+        mkdir -p "$WORK"
+
+        # 1. Copy template skeleton (astro config, package.json, src/pages, src/markdown, src/content.config.ts, public/, ...)
+        rsync -a "$ACTION_PATH/template/" "$WORK/"
+
+        # 2. Overlay caller-provided files
+        #    - components/, assets/    -> $WORK/src/{components,assets}/
+        #    - public/                 -> $WORK/public/   (caller wins on collisions)
+        #    - style.css               -> $WORK/src/style.css
+        #    - starlight.config.mjs    -> $WORK/src/starlight.config.mjs
+        #    - astro.config.mjs        -> $WORK/astro.config.mjs (full override; rare)
+        [ -d "$CONTENT_DIR/components" ] && rsync -a "$CONTENT_DIR/components/" "$WORK/src/components/" || true
+        [ -d "$CONTENT_DIR/assets"     ] && rsync -a "$CONTENT_DIR/assets/"     "$WORK/src/assets/"     || true
+        [ -d "$CONTENT_DIR/public"     ] && rsync -a "$CONTENT_DIR/public/"     "$WORK/public/"         || true
+        [ -f "$CONTENT_DIR/style.css"            ] && cp "$CONTENT_DIR/style.css"            "$WORK/src/style.css"            || true
+        [ -f "$CONTENT_DIR/starlight.config.mjs" ] && cp "$CONTENT_DIR/starlight.config.mjs" "$WORK/src/starlight.config.mjs" || true
+        [ -f "$CONTENT_DIR/astro.config.mjs"     ] && cp "$CONTENT_DIR/astro.config.mjs"     "$WORK/astro.config.mjs"         || true
+
+        if [ ! -f "$WORK/src/starlight.config.mjs" ]; then
+          echo "::error::starlight.config.mjs not found at $CONTENT_DIR/starlight.config.mjs"
+          exit 1
+        fi
+
+        # 3. Sync remaining caller files (markdown content) into src/content/docs/
         rsync -a \
           --exclude='.git' \
           --exclude='.github' \
           --exclude='.claude' \
           --exclude='.gitignore' \
           --exclude='.DS_Store' \
+          --exclude='.astro' \
+          --exclude='node_modules' \
+          --exclude='dist' \
           --exclude='CLAUDE.md' \
           --exclude='readme.md' \
           --exclude='README.md' \
           --exclude='LICENSE' \
-          "${{ github.workspace }}/" "$GITHUB_ACTION_PATH/src/content/docs/"
+          --exclude='package.json' \
+          --exclude='package-lock.json' \
+          --exclude='yarn.lock' \
+          --exclude='tsconfig.json' \
+          --exclude='astro.config.mjs' \
+          --exclude='starlight.config.mjs' \
+          --exclude='style.css' \
+          --exclude='components' \
+          --exclude='assets' \
+          --exclude='public' \
+          "$CONTENT_DIR/" "$WORK/src/content/docs/"
+
+        echo "STARLIGHT_WORK=$WORK" >> "$GITHUB_ENV"
 
     - name: Install dependencies
       shell: bash
-      working-directory: ${{ github.action_path }}
+      working-directory: ${{ env.STARLIGHT_WORK }}
       run: npm ci
 
     - name: Build site
       shell: bash
-      working-directory: ${{ github.action_path }}
+      working-directory: ${{ env.STARLIGHT_WORK }}
       run: npm run build
 
     - name: Upload Pages artifact
       uses: actions/upload-pages-artifact@v4
       with:
-        path: ${{ github.action_path }}/dist
+        path: ${{ env.STARLIGHT_WORK }}/dist

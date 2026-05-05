@@ -1,6 +1,9 @@
 import rss from '@astrojs/rss';
 import { getCollection } from 'astro:content';
 import type { APIContext } from 'astro';
+import user from '../starlight.config.mjs';
+
+type UserRss = { title?: string; description?: string; customData?: string };
 
 /** Match Starlight's `slugToPathname` so feed links match deployed URLs. */
 function docSlugToPathname(slug: string): string {
@@ -30,11 +33,12 @@ export async function GET(context: APIContext) {
 		})
 		.sort((a, b) => (b.pubDate?.getTime() ?? 0) - (a.pubDate?.getTime() ?? 0));
 
+	const rssConfig: UserRss = user.rss ?? {};
 	return rss({
-		title: "Roman's notes",
-		description: 'Personal notes and wiki — ozzyczech.cz',
+		title: rssConfig.title ?? user.starlight?.title ?? 'Site feed',
+		description: rssConfig.description ?? '',
 		site: base,
 		items,
-		customData: '<language>en</language>',
+		customData: rssConfig.customData ?? '<language>en</language>',
 	});
 }
