@@ -69,7 +69,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: OzzyCzech/wiki-publisher@v2
+      - uses: OzzyCzech/starlight@v1
         env:
           TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}    # whatever your components need
 
