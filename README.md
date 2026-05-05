@@ -9,16 +9,17 @@ A bundled Starlight skeleton lives in [`template/`](./template); the caller repo
 ```
 <repo-root>/
 ├── starlight.config.mjs       # required — site URL, sidebar, title, social, components map
-├── components/                # optional — *.astro components referenced from starlight.config.mjs
-├── assets/                    # optional — logo and other src-time assets
+├── src/                       # optional — overlays the bundled template/src
+│   ├── components/            #   *.astro components referenced from starlight.config.mjs
+│   ├── assets/                #   logo and other src-time assets
+│   └── style.css              #   extra CSS injected via Starlight customCss
 ├── public/                    # optional — favicon, og.png, CNAME, robots.txt, ...
-├── style.css                  # optional — extra CSS injected via Starlight customCss
 ├── astro.config.mjs           # optional — full astro.config override (advanced)
 ├── index.md                   # optional — homepage
 └── <content folders>/         # any markdown / mdx
 ```
 
-`components/`, `assets/`, `public/`, `style.css`, `starlight.config.mjs`, `astro.config.mjs` and standard repo files (`.git`, `.github`, `CLAUDE.md`, `README*`, `LICENSE`, `package*.json`, `tsconfig.json`, `node_modules`, `dist`, `.astro`) are excluded from the markdown content sync. Everything else is copied into `src/content/docs/`.
+`src/`, `public/`, `starlight.config.mjs`, `astro.config.mjs` and standard repo files (`.git`, `.github`, `CLAUDE.md`, `README*`, `LICENSE`, `package*.json`, `tsconfig.json`, `node_modules`, `dist`, `.astro`) are excluded from the markdown content sync. Everything else is copied into `src/content/docs/`.
 
 ## `starlight.config.mjs`
 
@@ -40,15 +41,9 @@ export default {
 };
 ```
 
-Paths inside `starlight.config.mjs` are interpreted from the build workdir, where:
+Paths inside `starlight.config.mjs` are interpreted from the project root: `./src/components/Foo.astro`, `./src/assets/logo.png`, `./src/style.css`. The same paths work in your caller repo (since you mirror the `src/` layout) and in the build workdir.
 
-| Caller path             | Build path             |
-|-------------------------|------------------------|
-| `components/Foo.astro`  | `src/components/Foo.astro` |
-| `assets/logo.png`       | `src/assets/logo.png`  |
-| `style.css`             | `src/style.css`        |
-
-So write paths as `./src/components/Foo.astro`, `./src/assets/logo.png`, `./src/style.css` — or use the path aliases `@components/*`, `@assets/*` in MDX/components.
+You can also use the path aliases `@components/*` and `@assets/*` in MDX and component imports.
 
 ## Usage
 

@@ -31,16 +31,13 @@ runs:
         # 1. Copy template skeleton (astro config, package.json, src/pages, src/markdown, src/content.config.ts, public/, ...)
         rsync -a "$ACTION_PATH/template/" "$WORK/"
 
-        # 2. Overlay caller-provided files
-        #    - components/, assets/    -> $WORK/src/{components,assets}/
-        #    - public/                 -> $WORK/public/   (caller wins on collisions)
-        #    - style.css               -> $WORK/src/style.css
-        #    - starlight.config.mjs    -> $WORK/src/starlight.config.mjs
-        #    - astro.config.mjs        -> $WORK/astro.config.mjs (full override; rare)
-        [ -d "$CONTENT_DIR/components" ] && rsync -a "$CONTENT_DIR/components/" "$WORK/src/components/" || true
-        [ -d "$CONTENT_DIR/assets"     ] && rsync -a "$CONTENT_DIR/assets/"     "$WORK/src/assets/"     || true
-        [ -d "$CONTENT_DIR/public"     ] && rsync -a "$CONTENT_DIR/public/"     "$WORK/public/"         || true
-        [ -f "$CONTENT_DIR/style.css"            ] && cp "$CONTENT_DIR/style.css"            "$WORK/src/style.css"            || true
+        # 2. Overlay caller-provided files (caller wins on collisions):
+        #    - src/      -> $WORK/src/         (components, assets, style.css, ...)
+        #    - public/   -> $WORK/public/
+        #    - starlight.config.mjs -> $WORK/src/starlight.config.mjs
+        #    - astro.config.mjs     -> $WORK/astro.config.mjs (full override; rare)
+        [ -d "$CONTENT_DIR/src"    ] && rsync -a "$CONTENT_DIR/src/"    "$WORK/src/"    || true
+        [ -d "$CONTENT_DIR/public" ] && rsync -a "$CONTENT_DIR/public/" "$WORK/public/" || true
         [ -f "$CONTENT_DIR/starlight.config.mjs" ] && cp "$CONTENT_DIR/starlight.config.mjs" "$WORK/src/starlight.config.mjs" || true
         [ -f "$CONTENT_DIR/astro.config.mjs"     ] && cp "$CONTENT_DIR/astro.config.mjs"     "$WORK/astro.config.mjs"         || true
 
@@ -69,9 +66,7 @@ runs:
           --exclude='tsconfig.json' \
           --exclude='astro.config.mjs' \
           --exclude='starlight.config.mjs' \
-          --exclude='style.css' \
-          --exclude='components' \
-          --exclude='assets' \
+          --exclude='src' \
           --exclude='public' \
           "$CONTENT_DIR/" "$WORK/src/content/docs/"
 
