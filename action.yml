@@ -1,4 +1,4 @@
-name: Starlight
+name: Starlight Pages Builder
 description: Build an Astro Starlight site from a Markdown repo and upload it as a GitHub Pages artifact. Zero config required.
 author: OzzyCzech
 branding:
