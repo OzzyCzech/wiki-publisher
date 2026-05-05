@@ -8,4 +8,17 @@ export default {
 	starlight: {
 		title: process.env.STARLIGHT_DEFAULT_TITLE || 'Site',
 	},
+	// Open Graph image generation (Satori + Resvg).
+	// Set `og: false` to disable, or pass a config object:
+	//   og: {
+	//     brand: 'My Site',
+	//     domain: 'example.com',
+	//     tagline: 'Optional uppercase line under brand',
+	//     accent: ['#4f46e5', '#312e81'],
+	//     logo: './public/logo.svg',  // optional, embedded as data URI
+	//   }
+	// Per-page override: set `ogImage:` (absolute URL or site-relative path) in frontmatter.
+	og: {
+		brand: process.env.STARLIGHT_DEFAULT_TITLE || 'Site',
+	},
 };
