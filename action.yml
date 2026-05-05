@@ -13,6 +13,12 @@ inputs:
     description: Node.js version to use for the build
     required: false
     default: '25'
+  starlight-version:
+    description: Override @astrojs/starlight version (e.g. '0.40.1' or '^0.40.0'). Leave empty to use the version pinned in template/package.json.
+    required: false
+  astro-version:
+    description: Override astro version (e.g. '^6.3.0'). Leave empty to use the version pinned in template/package.json.
+    required: false
 runs:
   using: composite
   steps:
@@ -108,7 +114,17 @@ runs:
     - name: Install dependencies
       shell: bash
       working-directory: ${{ env.STARLIGHT_WORK }}
-      run: npm ci
+      env:
+        STARLIGHT_VERSION: ${{ inputs.starlight-version }}
+        ASTRO_VERSION: ${{ inputs.astro-version }}
+      run: |
+        if [ -n "$STARLIGHT_VERSION" ] || [ -n "$ASTRO_VERSION" ]; then
+          [ -n "$STARLIGHT_VERSION" ] && npm pkg set "dependencies.@astrojs/starlight=$STARLIGHT_VERSION"
+          [ -n "$ASTRO_VERSION" ]     && npm pkg set "dependencies.astro=$ASTRO_VERSION"
+          npm install --no-audit --no-fund
+        else
+          npm ci
+        fi
 
     - name: Build site
       shell: bash
