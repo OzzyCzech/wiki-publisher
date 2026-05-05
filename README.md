@@ -82,7 +82,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: OzzyCzech/starlight@main
+      - uses: OzzyCzech/starlight@v2
 
   deploy:
     needs: build
@@ -110,7 +110,7 @@ jobs:
 The action ships locked dependency versions in `template/package-lock.json` for reproducible builds. Use `starlight-version` / `astro-version` only when you need to unblock a build or test a newer release without forking the action:
 
 ```yaml
-- uses: OzzyCzech/starlight@main
+- uses: OzzyCzech/starlight@v2
   with:
     starlight-version: '0.40.1'
 ```
