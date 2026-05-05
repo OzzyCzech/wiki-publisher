@@ -1,5 +1,5 @@
 name: Starlight
-description: Build a Starlight site from a markdown content repo and upload it as a GitHub Pages artifact
+description: Build an Astro Starlight site from a Markdown repo and upload it as a GitHub Pages artifact. Zero config required.
 author: OzzyCzech
 branding:
   icon: book-open
