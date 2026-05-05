@@ -8,7 +8,8 @@ import youtube from './src/markdown/youtube.ts';
 const user = (await import('./src/starlight.config.mjs')).default;
 
 export default defineConfig({
-	site: user.site,
+	site: process.env.STARLIGHT_SITE || user.site,
+	base: process.env.STARLIGHT_BASE || user.base,
 	markdown: {
 		remarkPlugins: [youtube, ...(user.markdown?.remarkPlugins ?? [])],
 		rehypePlugins: [links(user.linksHostname), ...(user.markdown?.rehypePlugins ?? [])],

@@ -19,6 +19,11 @@ inputs:
   astro-version:
     description: Override astro version (e.g. '^6.3.0'). Leave empty to use the version pinned in template/package.json.
     required: false
+  base:
+    description: |
+      Astro `base` path (e.g. '/my-repo' for project pages on github.io).
+      Leave empty for sites at the root of a custom domain.
+    required: false
 runs:
   using: composite
   steps:
@@ -129,6 +134,8 @@ runs:
     - name: Build site
       shell: bash
       working-directory: ${{ env.STARLIGHT_WORK }}
+      env:
+        STARLIGHT_BASE: ${{ inputs.base }}
       run: npm run build
 
     - name: Upload Pages artifact
