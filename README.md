@@ -90,7 +90,7 @@ jobs:
 | Name           | Default | Description |
 |----------------|---------|-------------|
 | `content-path` | `.`     | Where in the caller repo content lives |
-| `node-version` | `24`    | Node version for `setup-node` |
+| `node-version` | `25`    | Node version for `setup-node` |
 
 ## Local preview
 
