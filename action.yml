@@ -65,6 +65,15 @@ runs:
 
         if [ -f "$CONTENT_DIR/astro.config.mjs" ]; then cp "$CONTENT_DIR/astro.config.mjs" "$WORK/astro.config.mjs"; fi
 
+        # If caller stores content at the repo root (not inside src/content/docs),
+        # the action's rsync moves files under src/content/docs/ — but Starlight
+        # synthesizes editLink as `baseUrl + entry.filePath` which would yield
+        # `…/edit/main/src/content/docs/Foo.md` and 404 on GitHub. Tell the
+        # custom EditLink component to strip the prefix in that case.
+        if [ ! -d "$CONTENT_DIR/src/content/docs" ]; then
+          echo "STARLIGHT_EDIT_LINK_STRIP=1" >> "$GITHUB_ENV"
+        fi
+
         # 3. Sync remaining caller files (markdown content) into src/content/docs/
         rsync -a \
           --exclude='.git' \

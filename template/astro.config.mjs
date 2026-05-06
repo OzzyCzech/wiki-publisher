@@ -10,12 +10,17 @@ const user = (await import('./src/starlight.config.mjs')).default;
 const ogEnabled = user.og !== false && (user.og === undefined || user.og.enabled !== false);
 
 const starlightConfig = { ...(user.starlight ?? {}) };
-if (ogEnabled) {
-	starlightConfig.components = {
-		Head: './src/components/Head.astro',
-		...(starlightConfig.components ?? {}),
-	};
+const components = { ...(starlightConfig.components ?? {}) };
+if (ogEnabled && !components.Head) {
+	components.Head = './src/components/Head.astro';
 }
+// Override EditLink whenever an editLink baseUrl is configured so the action
+// can strip the synthetic `src/content/docs/` prefix from the URL when the
+// caller stores content at the repo root.
+if (starlightConfig.editLink?.baseUrl && !components.EditLink) {
+	components.EditLink = './src/components/EditLink.astro';
+}
+starlightConfig.components = components;
 
 export default defineConfig({
 	site: process.env.STARLIGHT_SITE || user.site,

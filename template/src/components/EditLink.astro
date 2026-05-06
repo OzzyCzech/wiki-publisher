@@ -1,0 +1,48 @@
+---
+let editUrl = Astro.locals.starlightRoute.editUrl as URL | undefined;
+
+// When the caller stores content at repo root, the action rsyncs MD files into
+// $WORK/src/content/docs/ but the actual GitHub source lives at the root.
+// Starlight composes editUrl as `baseUrl + entry.filePath`, so we strip the
+// synthetic `src/content/docs/` segment when STARLIGHT_EDIT_LINK_STRIP is set.
+if (editUrl && process.env.STARLIGHT_EDIT_LINK_STRIP === '1') {
+	editUrl = new URL(editUrl.href.replace('/src/content/docs/', '/'));
+}
+---
+
+{
+	editUrl && (
+		<a href={editUrl.href} class="sl-flex print:hidden">
+			<svg
+				aria-hidden="true"
+				class="sl-icon"
+				width="1.2em"
+				height="1.2em"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			>
+				<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+			</svg>
+			{Astro.locals.t('page.editLink')}
+		</a>
+	)
+}
+
+<style>
+	@layer starlight.core {
+		a {
+			display: inline-flex;
+			gap: 0.5rem;
+			align-items: center;
+			text-decoration: none;
+			color: var(--sl-color-gray-3);
+		}
+		a:hover {
+			color: var(--sl-color-white);
+		}
+	}
+</style>
